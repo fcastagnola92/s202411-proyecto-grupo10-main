@@ -127,6 +127,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+dev.truenative.env/
+example.truenative.env/
 
 # Spyder project settings
 .spyderproject
