@@ -1,0 +1,21 @@
+###################################
+# INGRESS
+###################################
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivery-together-mailer-ingress
+  labels:
+    name: delivery-together-mailer-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /mailer
+        backend:
+          service:
+            name: delivery-together-mailer-service
+            port: 
+              number: 80

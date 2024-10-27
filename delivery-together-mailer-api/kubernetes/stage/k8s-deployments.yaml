@@ -1,0 +1,79 @@
+###################################
+# delivery-together-post-api
+###################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-together-mailer-api
+  labels:
+    app: delivery-together-mailer-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-together-mailer-api
+  template:
+    metadata:
+      labels:
+        app: delivery-together-mailer-api
+    spec:
+      containers:
+        - name: delivery-together-mailer-api
+          image: us-central1-docker.pkg.dev/esoteric-realm-415003/delivery-together-repository/delivery-together-mailer-api:1.0.0
+          env:
+            - name: "APP_ENV"
+              valueFrom:
+                configMapKeyRef:
+                  name: mailer-configmap
+                  key: APP_ENV
+            - name: "PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: mailer-configmap
+                  key: PORT
+            - name: "CORS_ALLOW_ORIGIN"
+              valueFrom:
+                configMapKeyRef:
+                  name: mailer-configmap
+                  key: CORS_ALLOW_ORIGIN
+            - name: "DATABASE_URL"
+              valueFrom:
+                configMapKeyRef:
+                  name: mailer-configmap
+                  key: DATABASE_URL
+            - name: "MAILER_DSN"
+              valueFrom:
+                secretKeyRef:
+                  name: mailer-secrets 
+                  key: MAILER_DSN
+          ports:
+            - containerPort: 3006
+          imagePullPolicy: Always
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: delivery-together-mailer-config
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    port: 3006
+    type: HTTP
+    requestPath: /mailer/ping
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: delivery-together-mailer-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "delivery-together-mailer-config"}'
+spec:
+  type: NodePort
+  selector:
+    app: delivery-together-mailer-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3006
+      nodePort: 31004

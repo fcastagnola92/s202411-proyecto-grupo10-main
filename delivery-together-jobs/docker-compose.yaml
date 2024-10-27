@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  jobs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.dev
+    container_name: delivery-together-jobs
+    volumes: 
+      - ".:/app"
+    restart: on-failure
+    tty: true
+    networks:
+      - app_net
+networks:
+  app_net:
+    name: app_net
+    driver: bridge

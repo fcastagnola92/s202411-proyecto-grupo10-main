@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: true-native-configmap
+data:
+  MAX_WEBHOOK_DELAY: "120"
+  MAX_POLL_DELAY: "30"
+  SUCCESS_RATE: "50"

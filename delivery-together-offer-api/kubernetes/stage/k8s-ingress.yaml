@@ -1,0 +1,21 @@
+###################################
+# INGRESS
+###################################
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivery-together-offer-ingress
+  labels:
+    name: delivery-together-offer-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /offers
+        backend:
+          service:
+            name: delivery-together-offer-service
+            port: 
+              number: 80

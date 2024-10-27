@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: route-configmap
+data:
+  ENVIRONMENT: "develop"
+  FLASK_APP: "src/app"
+  PORT: "3002"
+  USERS_PATH: "http://delivery-together-user-service"
+  NODE_ENV: "development"
+  APP_ENV: "development"
+  DEBUG: "true"
+  LOG_LEVEL: "info"
+  VERSION: "1.0"

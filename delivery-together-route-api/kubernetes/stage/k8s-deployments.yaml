@@ -1,0 +1,110 @@
+###################################
+# delivery-together-route-api
+###################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-together-route-api
+  labels:
+    app: delivery-together-route-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-together-route-api
+  template:
+    metadata:
+      labels:
+        app: delivery-together-route-api
+    spec:
+      containers:
+        - name: delivery-together-route-api
+          image: us-central1-docker.pkg.dev/esoteric-realm-415003/delivery-together-repository/delivery-together-route-api:1.0.0
+          env:
+            - name: "ENVIRONMENT"
+              valueFrom:
+                configMapKeyRef:
+                  name: route-configmap
+                  key: ENVIRONMENT
+            - name: "FLASK_APP"
+              valueFrom:
+                configMapKeyRef:
+                  name: route-configmap
+                  key: FLASK_APP
+            - name: "PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: route-configmap
+                  key: PORT
+            - name: "USERS_PATH"
+              valueFrom:
+                configMapKeyRef:
+                  name: route-configmap
+                  key: USERS_PATH
+            - name: "VERSION"
+              valueFrom:
+                configMapKeyRef:
+                  name: route-configmap
+                  key: VERSION
+            - name: "DB_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: route-secrets 
+                  key: DB_USER
+            - name: "DB_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: route-secrets 
+                  key: DB_PASSWORD
+            - name: "DB_HOST"
+              valueFrom:
+                secretKeyRef:
+                  name: route-secrets 
+                  key: DB_HOST
+            - name: "DB_PORT"
+              valueFrom:
+                secretKeyRef:
+                  name: route-secrets 
+                  key: DB_PORT
+            - name: "DB_NAME"
+              valueFrom:
+                secretKeyRef:
+                  name: route-secrets 
+                  key: DB_NAME
+          resources:
+            requests:
+              memory: "1000Mi"
+              cpu: "500m"
+            limits:
+              memory: "2000Mi"
+              cpu: "1000m"
+          ports:
+            - containerPort: 3002
+          imagePullPolicy: Always
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: delivery-together-route-config
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    port: 3002
+    type: HTTP
+    requestPath: /routes/ping
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: delivery-together-route-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "delivery-together-route-config"}'
+spec:
+  type: LoadBalancer
+  selector:
+    app: delivery-together-route-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3002

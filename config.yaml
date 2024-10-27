@@ -1,0 +1,65 @@
+team:
+   name: CodeSquad 
+   members:
+      - user: p.caprilespe@uniandes.edu.co
+        percentage: 25
+      - user: ma.tovarb12@uniandes.edu.co
+        percentage: 25
+      - user: m.vegar@uniandes.edu.co
+        percentage: 25
+      - user: f.castagnola@uniandes.edu.co
+        percentage: 25
+board: https://github.com/orgs/MISW-4301-Desarrollo-Apps-en-la-Nube/projects/145
+url: 34.102.145.9
+user-management:
+  folder: delivery-together-user-api
+  port: 3000
+  authors:
+    - Fabio Castagnola
+post-management:
+  folder: delivery-together-post-api
+  port: 3001
+  authors:
+    - Pedro Capriles
+offer-management:
+  folder: delivery-together-offer-api/offer-solution
+  port: 3003
+  authors:
+    - Miguel Vega
+route-management:
+  folder: delivery-together-route-api
+  port: 3002
+  authors:
+    - Miguel Tovar
+score-management:
+  folder: delivery-together-score-api
+  port: 3004
+  authors:
+    - Pedro Capriles
+bff-management:
+  folder: delivery-together-bff-api
+  port: 80
+  authors:
+    - Miguel Angel Tovar
+    - Fabio Castagnola
+    - Miguel Angel Vega
+true-native-api:
+  folder: true-native-api
+  port: 3000
+  authors:
+    - uniandes
+delivery-together-card-api:
+  folder: delivery-together-card-api
+  port: 3007
+  authors:
+    - Miguel Angel Tovar
+    - Miguel Angel Vega
+delivery-together-mailer-api:
+  folder: delivery-together-mailer-api
+  port: 3006
+  authors:
+    - Pedro Capriles
+delivery-together-worker-serverless:
+  folder: delivery-together-worker-serverless
+  authors:
+    - Pedro Capriles

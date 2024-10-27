@@ -1,0 +1,335 @@
+version: '3.8'
+
+services:
+  posts:
+    container_name: delivery-together-post-api
+    build:
+      context: ./delivery-together-post-api/.
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+       ENVIRONMENT: develop
+       PORT: 3001
+       VERSION: 1.0
+       DB_USER: postgres
+       DB_PASSWORD: postgres
+       DB_HOST: posts_db
+       DB_PORT: 5432
+       DB_NAME: post-db
+       USERS_PATH: http://users:3000
+    volumes:
+      - ./delivery-together-post-api/.:/usr/src/app
+    networks:
+      - post_net
+      - app_net
+    depends_on:
+      - posts_db
+      - users
+    links:
+      - posts_db
+      - users
+  posts_db:
+    container_name: post-db
+    image: postgres:latest
+    env_file:
+      -  ./delivery-together-post-api/.env.db
+    volumes:
+      - ./delivery-together-post-api/data/postgres:/var/lib/postgresql/data
+    networks:
+      - post_net
+  users:
+    container_name: delivery-together-user-api
+    build: ./delivery-together-user-api/.
+    ports:
+      - "3000:3000"
+    environment:
+       NODE_ENV: development
+       APP_PORT: 3000
+       DB_USER: postgres
+       DB_PASSWORD: postgres
+       DB_HOST: users_db
+       DB_PORT: 5432
+       DB_NAME: user-db
+    networks:
+      - user_net
+      - app_net
+    depends_on:
+      - users_db
+      - true_native
+      - mailer
+    links:
+      - users_db
+      - true_native
+      - mailer
+  users_db:
+    container_name: user-db
+    image: postgres:latest
+    env_file:
+      - ./delivery-together-user-api/.env.db
+    volumes:
+      - ./delivery-together-user-api/data/postgres:/var/lib/postgresql
+    networks:
+      - user_net
+
+  routes:
+    container_name: delivery-together-route-api
+    build:
+      context: ./delivery-together-route-api/.
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      ENVIRONMENT: develop
+      FLASK_APP: src/app
+      PORT: 3002
+      VERSION: 1.0
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: routes_db
+      DB_PORT: 5432
+      DB_NAME: route-db
+      USERS_PATH: http://users:3000
+    volumes:
+      - ./delivery-together-route-api/.:/usr/src/app
+    networks:
+      - route_net
+      - app_net
+    depends_on:
+      - routes_db
+      - users
+    links:
+      - routes_db
+      - users
+  routes_db:
+    container_name: routes-db
+    image: postgres:latest
+    env_file:
+      -  ./delivery-together-route-api/.env.db
+    volumes:
+      - ./delivery-together-route-api/data/postgres:/var/lib/postgresql
+    networks:
+      - route_net
+
+  offers:
+    container_name: delivery-together-offer-api
+    build:
+      context: ./delivery-together-offer-api/offer-solution/.
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+       ENVIRONMENT: develop
+       PORT: 3003
+       VERSION: 1.0
+       DB_USER: postgres
+       DB_PASSWORD: postgres
+       DB_HOST: offers_db
+       DB_PORT: 5432
+       DB_NAME: offer-db
+       USERS_PATH: http://users:3000
+    volumes:
+      - ./delivery-together-offer-api/offer-solution/.:/usr/src/app
+    networks:
+      - offer_net
+      - app_net
+    depends_on:
+      - offers_db
+      - users
+    links:
+      - offers_db
+      - users
+  offers_db:
+    container_name: offers-db
+    image: postgres:latest    
+    env_file:
+      -  ./delivery-together-offer-api/offer-solution/.env.db
+      
+    volumes:
+      - ./delivery-together-offer-api/offer-solution/data/postgres:/var/lib/postgresql/data
+    networks:
+      - offer_net
+  
+  scores:
+    build:
+      context: ./delivery-together-score-api/.
+      dockerfile: Dockerfile
+    container_name: delivery-together-score-api
+    env_file:
+      - ./delivery-together-score-api/.env
+    volumes:
+      - "./delivery-together-score-api/.:/usr/src/app"
+    ports:
+      - "3004:3004"
+    networks:
+      - score_net
+      - app_net
+    depends_on:
+      - scores_db
+      - users
+    links:
+      - scores_db
+      - users
+  scores_db:
+    container_name: score-db
+    image: postgres:latest
+    env_file:
+      - ./delivery-together-score-api/.env.db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./delivery-together-score-api/data/postgres:/var/lib/postgresql
+    networks:
+      - score_net
+
+
+  bff:
+    container_name: delivery-together-bff-api
+    build:
+      context: ./delivery-together-bff-api/.
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+       ENVIRONMENT: develop
+       PORT: 80
+       VERSION: 1.0
+       USERS_PATH: http://users:3000
+       OFFER_PATH: http://offers:3003
+       SCORE_PATH: http://scores:3004
+       ROUTE_PATH: http://routes:3002
+       POST_PATH: http://posts:3001
+    volumes:
+      - ./delivery-together-bff-api/bff-solution/.:/usr/src/app
+    networks:
+      - bff_net
+      - app_net
+    depends_on:
+      - offers
+      - users
+      - scores
+      - routes
+      - posts
+    links:
+      - offers
+      - users
+      - scores
+      - routes
+      - posts
+  
+  true_native:
+    container_name: true-native-api
+    image: ghcr.io/misw-4301-desarrollo-apps-en-la-nube/true-native:2.0.0
+    env_file:
+      - dev.truenative.env
+    ports: 
+      - "3005:3000"
+    networks:
+      - app_net
+
+  mailer:
+    build:
+      context: ./delivery-together-mailer-api/.
+      dockerfile: Dockerfile
+    env_file:
+      - ./delivery-together-mailer-api/.env
+    container_name: delivery-together-mailer-api
+    volumes: 
+      - "./delivery-together-mailer-api/.:/app"
+    restart: on-failure
+    ports:
+      - "3006:8000"
+    tty: true
+    networks:
+      - app_net
+
+  cards:
+    container_name: delivery-together-card-api
+    build:
+      context: ./delivery-together-card-api/.
+      dockerfile: Dockerfile
+    ports:
+      - "3007:3007"
+    restart: always
+    environment:
+      ENVIRONMENT: develop
+      FLASK_APP: src/app
+      PORT: 3007
+      VERSION: 1.0
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: cards_db
+      DB_PORT: 5432
+      DB_NAME: card-db
+      USERS_PATH: http://users:3000
+      NATIVE_PATH: http://true_native:3000
+      MAILER_PATH: http://mailer:8000
+      NATIVE_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnZpcm9ubWVudCI6ImRldmVsb3BtZW50IiwiYXBwIjoiVHJ1ZW5hdGl2ZSJ9.41LaPRWPilsVOmRenGqP4I8JemGMe0VU-DGMMiiuQXk
+      GOOGLE_PUB_SUB_CREDENTIALS: key/service-account-key.json
+      PROJECT_ID: esoteric-realm-415003
+      TOPIC: delivery-together-card-verification
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - card_net
+      - app_net
+    depends_on:
+      - cards_db
+      - users
+      - true_native
+      - mailer
+    links:
+      - cards_db
+      - users
+      - true_native
+      - mailer
+  
+  cards_db:
+    container_name: card-db
+    image: postgres:latest
+    env_file:
+      - ./delivery-together-card-api/.env.db
+    volumes:
+      - "./data/postgres:/var/lib/postgresql"
+    networks:
+      - card_net
+  
+  jobs:
+    build:
+      context: ./delivery-together-jobs/.
+      dockerfile: Dockerfile
+    env_file:
+      - ./delivery-together-jobs/.env.dev
+    container_name: delivery-together-jobs
+    volumes: 
+      - "./delivery-together-jobs/.:/app"
+    restart: on-failure
+    tty: true
+    networks:
+      - app_net
+
+networks:
+  post_net:
+    name: post_net
+    driver: bridge
+  user_net:
+    name: user_net
+    driver: bridge
+  app_net:
+    name: app_net
+    driver: bridge
+  route_net:
+    name: route_net
+    driver: bridge
+  score_net:
+    name: score_net
+    driver: bridge
+  offer_net:
+    name: offer_net
+    driver: bridge
+  bff_net:
+    name: bff_net
+    driver: bridge
+  card_net:
+    name: card_net
+    driver: bridge

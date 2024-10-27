@@ -1,0 +1,9 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+send_email:
+    path: 'mailer/mail/send'
+    controller: 'App\Controller\EmailController::sendEmail'
+    methods: ['POST']

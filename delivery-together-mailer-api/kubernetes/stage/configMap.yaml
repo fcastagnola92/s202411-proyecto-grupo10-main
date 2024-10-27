@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mailer-configmap
+data:
+  APP_ENV: "stage"
+  PORT: "3006"
+  CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
+  DATABASE_URL: ""

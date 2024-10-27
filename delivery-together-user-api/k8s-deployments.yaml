@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-together-user-api
+  labels:
+    app: delivery-together-user-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-together-user-api
+  template:
+    metadata:
+      labels:
+        app: delivery-together-user-api
+    spec:
+      containers:
+        - name: delivery-together-user-api
+          image: us-central1-docker.pkg.dev/esoteric-realm-415003/delivery-together-repository/delivery-together-user-api:1.1.1
+          env:
+          - name: "TRUE_NATIVE_HOST"
+            valueFrom:
+              configMapKeyRef:
+                name: user-configmap
+                key: TRUE_NATIVE_HOST
+          - name: "TRUE_NATIVE_PORT"
+            valueFrom:
+              configMapKeyRef:
+                name: user-configmap
+                key: TRUE_NATIVE_PORT
+          - name: "TRUE_NATIVE_PATH"
+            valueFrom:
+              configMapKeyRef:
+                name: user-configmap
+                key: TRUE_NATIVE_PATH
+          - name: "TRUE_NATIVE_USER_WEBHOOK"
+            valueFrom:
+              configMapKeyRef:
+                name: user-configmap
+                key: TRUE_NATIVE_USER_WEBHOOK
+          - name: "NODE_ENV"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: NODE_ENV
+          - name: "APP_PORT"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: APP_PORT
+          - name: "DB_USER"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: DB_USER
+          - name: "DB_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: DB_PASSWORD
+          - name: "DB_HOST"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: DB_HOST
+          - name: "DB_PORT"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: DB_PORT
+          - name: "DB_NAME"
+            valueFrom:
+              secretKeyRef:
+                name: appsecrets 
+                key: DB_NAME
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
+          # Realizar pull siempre a la imagen
+          imagePullPolicy: Always
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: delivery-together-user-config
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    port: 3000
+    type: HTTP
+    requestPath: /users/ping
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: delivery-together-user-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "delivery-together-user-config"}'
+spec:
+  type: NodePort
+  selector:
+    app: delivery-together-user-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 31019
+---
+
+###################################
+# INGRESS
+###################################
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivery-together-user-ingress
+  labels:
+    name: delivery-together-user-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /users
+        backend:
+          service:
+            name: delivery-together-user-service
+            port: 
+              number: 80

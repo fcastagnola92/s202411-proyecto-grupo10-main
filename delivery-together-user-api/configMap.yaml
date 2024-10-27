@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-configmap
+data:
+  TRUE_NATIVE_HOST: "true-native-service"
+  TRUE_NATIVE_PORT: "3000"
+  TRUE_NATIVE_PATH: "/native/verify"
+  TRUE_NATIVE_USER_WEBHOOK: "http://true-native-service/users/hook/update"

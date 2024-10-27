@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  scores:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delivery-together-score-api
+    env_file:
+      - .env
+    volumes:
+      - ".:/usr/src/app"
+    ports:
+      - "3004:3004"
+    networks:
+      - score_net
+      - app_net
+    depends_on:
+      - scores_db
+      - users
+    links:
+      - scores_db
+      - users
+  scores_db:
+    container_name: score-db
+    image: postgres:latest
+    env_file:
+      - .env.db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql
+    networks:
+      - score_net
+  users:
+      container_name: delivery-together-user-api
+      build: ../delivery-together-user-api/.
+      ports:
+        - "3000:3000"
+      environment:
+       NODE_ENV: development
+       APP_PORT: 3000
+       DB_USER: postgres
+       DB_PASSWORD: postgres
+       DB_HOST: users_db
+       DB_PORT: 5432
+       DB_NAME: user-db
+      networks:
+        - user_net
+        - app_net
+      depends_on:
+        - users_db
+      links:
+        - users_db
+  users_db:
+    container_name: user-db
+    image: postgres
+    env_file:
+      - ../delivery-together-user-api/.env.db
+    volumes:
+      - user-db:/var/lib/postgresql
+    networks:
+      - user_net
+networks:
+  score_net:
+    name: score_net
+  app_net:
+    name: app_net
+  user_net:
+    name: user_net
+volumes:
+  score-db:
+  user-db:

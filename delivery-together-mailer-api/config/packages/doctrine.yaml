@@ -1,0 +1,5 @@
+doctrine:
+    dbal:
+        # disabled database
+    orm:
+        # disabled orm

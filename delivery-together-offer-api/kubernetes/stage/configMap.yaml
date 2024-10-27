@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: offer-configmap
+data:
+    ENVIRONMENT: "stage"
+    PORT: "3003"
+    USERS_PATH: "http://delivery-together-user-service"

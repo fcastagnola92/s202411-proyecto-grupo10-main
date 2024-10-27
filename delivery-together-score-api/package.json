@@ -1,0 +1,58 @@
+{
+  "name": "delivery-together-score-api",
+  "version": "1.0.0",
+  "description": "Api to calculate and persist the scores of the offers",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "prestart": "npm run build",
+    "dev": "ts-node-dev -r tsconfig-paths/register src/server.ts",
+    "start": "node --require @babel/register dist/src/server.js",
+    "eslint": "eslint src/**/*.ts",
+    "eslint:fix": "eslint src/**/*.ts --fix",
+    "build": "tsc",
+    "start:prod": "node --require @babel/register dist/src/server.js",
+    "build:start": "npm run build && npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Score",
+    "post",
+    "offer",
+    "calculator"
+  ],
+  "author": "Pedro Capriles <p.caprilespe@uniandes.edu.co>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-typescript": "^7.23.3",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "babel-jest": "^29.7.0",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "babel-polyfill": "^6.26.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "pre-commit": "^1.2.2",
+    "ts-jest": "^29.1.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@babel/register": "^7.23.7",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.4",
+    "express": "^4.18.2",
+    "http-status-codes": "^2.3.0",
+    "joi": "^17.12.2",
+    "pg": "^8.11.3",
+    "typeorm": "^0.3.20",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "@babel/preset-typescript"
+    ],
+    "plugins": [
+      [
+        "module-resolver",
+        {
+          "root": ["./dist/src"],
+          "alias": {
+            "@Api": "./dist/src",
+            "@Config": "./dist/src/config",
+            "@Utils": "./dist/src/utils",
+            "@Infrastructure": "./dist//src/infrastructure",
+            "@Application": "./dist/src/application",
+            "@Domain": "./dist/src/domain"
+          }
+        }
+      ]
+    ]
+  }

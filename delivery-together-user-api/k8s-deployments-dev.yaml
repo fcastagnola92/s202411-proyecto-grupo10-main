@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-together-user-api
+  labels:
+    app: delivery-together-user-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-together-user-api
+  template:
+    metadata:
+      labels:
+        app: delivery-together-user-api
+    spec:
+      containers:
+        - name: delivery-together-user-api
+          image: caprilespe/delivery-together-user-api:1.0.0
+          ports:
+            - containerPort: 3000
+          # Realizar pull siempre a la imagen
+          imagePullPolicy: Always
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: delivery-together-user-config
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    port: 3000
+    type: HTTP
+    requestPath: /users/ping
+---
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: delivery-together-user-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "delivery-together-user-config"}'
+spec:
+  type: NodePort
+  selector:
+    app: delivery-together-user-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 31019
+---
+
+###################################
+# INGRESS
+###################################
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivery-together-user-ingress
+  labels:
+    name: delivery-together-user-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /users
+        backend:
+          service:
+            name: delivery-together-user-service
+            port: 
+              number: 80

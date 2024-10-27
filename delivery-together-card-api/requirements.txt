@@ -1,0 +1,17 @@
+Flask==3.0.1
+Flask-RESTful==0.3.10
+Flask-SQLAlchemy==3.1.1
+marshmallow==3.20.2
+marshmallow-sqlalchemy==1.0.0
+python-dotenv==1.0.1
+SQLAlchemy==2.0.28
+Flask-Migrate==4.0.5
+psycopg2-binary==2.9.9
+Faker==14.0.0
+coverage
+requests
+gunicorn==20.1.0
+python-dateutil
+google-auth
+google-api-python-client
+google-auth-httplib2

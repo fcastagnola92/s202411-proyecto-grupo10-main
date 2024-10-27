@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: score-configmap
+data:
+    NODE_ENV: "stage"
+    APP_ENV: "stage"
+    PORT: "3004"
+    USERS_PATH: "http://delivery-together-user-service"
+    DEBUG: "true"
+    LOG_LEVEL: "info"

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jobs-configmap
+data:
+  URL: "http://delivery-together-card-service"
+  SCHEDULE: '*/2 * * * * *'

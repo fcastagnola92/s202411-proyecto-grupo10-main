@@ -1,0 +1,49 @@
+version: "3.9"
+services:
+
+  cards:
+    container_name: delivery-together-card-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    restart: always
+    environment:
+      ENVIRONMENT: develop
+      FLASK_APP: src/app
+      PORT: 3005
+      VERSION: 1.0
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: cards_db
+      DB_PORT: 5432
+      DB_NAME: card-db
+      USERS_PATH: http://users:3000
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - card_net
+      - app_net
+    depends_on:
+      - cards_db
+    links:
+      - cards_db
+  cards_db:
+    container_name: card-db
+    image: postgres:latest
+    env_file:
+      - .env.db
+    volumes:
+      - "./data/postgres:/var/lib/postgresql"
+    networks:
+      - card_net
+  
+
+networks:
+  card_net:
+    name: card_net
+    driver: bridge
+  app_net:
+    name: app_net
+    driver: bridge

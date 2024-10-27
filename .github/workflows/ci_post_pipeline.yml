@@ -1,0 +1,37 @@
+name: Go CI 🦫
+
+on: [push]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.21.6'
+    - name: Generate build number
+      run: echo "The build number $GITHUB_RUN_NUMBER 🏗"
+
+    - name: Test 🧪
+      run: |
+        cd delivery-together-post-api
+        make test
+    
+    - name: Test report coverage 🧪
+      run: |
+        cd delivery-together-post-api
+        go install github.com/axw/gocov/gocov@latest
+        make test-coverage-report-ci
+    
+    - name: Build docker 🐳
+      run: |
+        cd delivery-together-post-api
+        docker build . -t=delivery-together-post-api:build-$GITHUB_RUN_NUMBER
+    
+    

@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  users:
+    container_name: delivery-together-user-api
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+       NODE_ENV: development
+       APP_PORT: 3000
+       DB_USER: postgres
+       DB_PASSWORD: postgres
+       DB_HOST: users_db
+       DB_PORT: 5432
+       DB_NAME: user-db
+    networks:
+      - user_net
+      - app_net
+    depends_on:
+      - users_db
+    links:
+      - users_db
+  users_db:
+    container_name: user-db
+    image: postgres:latest
+    env_file:
+      - .env.db
+    volumes:
+      - user-db:/var/lib/postgresql
+    networks:
+      - user_net
+networks:
+  user_net:
+    name: user_net
+    driver: bridge
+  app_net:
+    name: app_net
+    driver: bridge
+volumes:
+  user-db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/postgres

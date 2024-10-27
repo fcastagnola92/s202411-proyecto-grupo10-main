@@ -1,0 +1,74 @@
+###################################
+# delivery-together-post-api
+###################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: true-native-api
+  labels:
+    app: true-native-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: true-native-api
+  template:
+    metadata:
+      labels:
+        app: true-native-api
+    spec:
+      containers:
+        - name: true-native-api
+          image: ghcr.io/misw-4301-desarrollo-apps-en-la-nube/true-native:2.0.0
+          env:
+            - name: "MAX_WEBHOOK_DELAY"
+              valueFrom:
+                configMapKeyRef:
+                  name: true-native-configmap
+                  key: MAX_WEBHOOK_DELAY
+            - name: "MAX_POLL_DELAY"
+              valueFrom:
+                configMapKeyRef:
+                  name: true-native-configmap
+                  key: MAX_POLL_DELAY
+            - name: "SUCCESS_RATE"
+              valueFrom:
+                configMapKeyRef:
+                  name: true-native-configmap
+                  key: SUCCESS_RATE
+            - name: "SECRET_TOKEN"
+              valueFrom:
+                secretKeyRef:
+                  name: true-native-secrets 
+                  key: SECRET_TOKEN
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: true-native-config
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    port: 3000
+    type: HTTP
+    requestPath: /native/ping
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: true-native-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "true-native-config"}'
+spec:
+  type: NodePort
+  selector:
+    app: true-native-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 31000
